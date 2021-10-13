@@ -9,22 +9,18 @@
 <?php
 
 // 文字列検索
-// 財産番号
 const PROPERTY_NUMBER = "財産番号";
-// 資産名称
 const ASSET_NAME = "資産名称";
-// 所在地
-const LOCATION = "LOCATION";
-// 補助科目名称
-const AUXILIARY_SUBJECT_NAME = "AUXILIARY_SUBJECT_NAME";
+const LOCATION = "所在地";
+const AUXILIARY_SUBJECT_NAME = "補助科目名称";
 
 // 範囲検索
-// 取得価格
-const ACQUISITION_PRICE_MIN = "ACQUISITION_PRICE_MIN";
-const ACQUISITION_PRICE_MAX = "ACQUISITION_PRICE_MAX";
-// 期末簿価
-const BOOK_VALUE_OF_PERIOD_MIN = "BOOK_VALUE_OF_PERIOD_MIN";
-const BOOK_VALUE_OF_PERIOD_MAX = "BOOK_VALUE_OF_PERIOD_MAX";
+const ACQUISITION_PRICE_MIN = "最小取得価格";
+const ACQUISITION_PRICE_MAX = "最大取得価格";
+const BOOK_VALUE_OF_PERIOD_MIN = "最小期末簿価";
+const BOOK_VALUE_OF_PERIOD_MAX = "最大期末簿価";
+// const SERCH_TERMS_ARRAY = ["財産番号", "資産名称", "所在地", "補助科目名称", "最小取得価格", "最大取得価格", "最小期末簿価", "最大期末簿価"];
+const SERCH_TERMS_ARRAY = ["財産番号", "資産名称", "所在地", "補助科目名称"];
 
 $fileData = new SplFileObject('墨田区固定資産台帳_202103.tsv');
 $fileData -> setFlags(SplFileObject::READ_CSV);
@@ -58,26 +54,43 @@ foreach($fileData as $record_index => $data) {
     }
 }
 // print_r($data_array);
-
-    // ここで入力された検索条件の未入力を除いた配列を作りたい（予定）
+    
     $input_array = Array();
-    if ($_GET[PROPERTY_NUMBER] != "") {
-        $input_array[PROPERTY_NUMBER] = $_GET[PROPERTY_NUMBER];
-    }
+    $input_array[PROPERTY_NUMBER] = $_GET[PROPERTY_NUMBER];
+    $input_array[ASSET_NAME] = $_GET[ASSET_NAME];
+    $input_array[LOCATION] = $_GET[LOCATION];
+    $input_array[AUXILIARY_SUBJECT_NAME] = $_GET[AUXILIARY_SUBJECT_NAME];
+    // $input_array[ACQUISITION_PRICE_MIN] = $_GET[ACQUISITION_PRICE_MIN];
+    // $input_array[ACQUISITION_PRICE_MAX] = $_GET[ACQUISITION_PRICE_MAX];
+    // $input_array[BOOK_VALUE_OF_PERIOD_MIN] = $_GET[BOOK_VALUE_OF_PERIOD_MIN];
+    // $input_array[BOOK_VALUE_OF_PERIOD_MAX] = $_GET[BOOK_VALUE_OF_PERIOD_MAX];
+    // 配列化した検索条件の未入力を除いた配列を作りたい（予定）
 
-    if ($_GET[ASSET_NAME] != "") {
-        $input_array[ASSET_NAME] = $_GET[ASSET_NAME];
-    }
-    print_r($input_array);
+    // print_r($input_array);
 
 
+    $result_array = Array();
     // 入力値とデータを比較（検索部分本体）
-    // foreach ($data_array as $column) {
-    //     if ($column[ASSET_NAME] == $_GET[ASSET_NAME] && 
-    //         $column[PROPERTY_NUMBER] == $_GET[PROPERTY_NUMBER]) {
-    //         print_r($column);
-    //     }
-    // }
+    foreach ($data_array as $column) {
+        $match_flag = false;
+        
+        foreach(SERCH_TERMS_ARRAY as $team) {
+            if($column[$team] != $input_array[$team] && $input_array[$team] != "") {
+                $match_flag = false;
+                break;
+            }
+            $match_flag = true;
+        }
+        if($match_flag) {
+            $result_array[count($result_array)] = $column;
+        }
+    }
+    print_r($result_array);
+    echo '<table>
+    <thead>
+    <tr><th>c1</th><th>c2</th></tr>
+    <thead>
+    <tbody>';
 
 
     // $test_array = Array();
