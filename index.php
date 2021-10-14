@@ -85,22 +85,24 @@ foreach($fileData as $record_index => $data) {
             $result_array[count($result_array)] = $column;
         }
     }
-    print_r($result_array);
-    echo '<table>
-    <thead>
-    <tr><th>c1</th><th>c2</th></tr>
-    <thead>
-    <tbody>';
+    // print_r($result_array);
+ 
 
+    echo '<table border="5">
+    <tr>';
+    foreach($header_array as $header) {
+        echo '<th>'.$header.'</th>';
+    }
+    echo '</tr>';
+    foreach($result_array as $result) {
+        echo '<tr>';
+        foreach($header_array as $index) {
+            echo '<td>'.$result[$index].'</td>';
+        }
+        echo '</tr>'; 
+    }
+    echo '</table>';
 
-    // $test_array = Array();
-    // $test_array["0"] = $_GET[ASSET_NAME];
-    // var_dump($_GET[ASSET_NAME]);
-    // if (in_array("", $test_array) || in_array(" ", $test_array)) {
-    //     echo "からもじ含む";
-    // } else {
-    //     echo "からもじ含まない";
-    // }
 
 ?>
 
