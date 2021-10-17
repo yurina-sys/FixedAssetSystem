@@ -48,15 +48,13 @@ const LOCATION = 3;
 const AUXILIARY_SUBJECT_NAME = 5;
 
 // 範囲検索
-const ACQUISITION_PRICE_MIN = "最小取得価格";
-const ACQUISITION_PRICE_MAX = "最大取得価格";
-const BOOK_VALUE_OF_PERIOD_MIN = "最小期末簿価";
-const BOOK_VALUE_OF_PERIOD_MAX = "最大期末簿価";
+const ACQUISITION_PRICE = 12;
+const BOOK_VALUE_OF_PERIOD = 13;
 
 const PAGE_ITEM_COUNT = 20;
 
 // 絞り込み処理実行
-[$header_array,$result_array] = searchDatas($input_property_number,
+[$header_array, $result_array] = searchDatas($input_property_number,
                                                 $input_asset_name,
                                                 $input_location,
                                                 $input_auxiliary_submit_name,
@@ -65,7 +63,10 @@ const PAGE_ITEM_COUNT = 20;
                                                 $input_book_value_of_period_min,
                                                 $input_book_value_of_period_max);
 
-$current_page = isset($_GET["page"]) ? $_GET["page"] : "1";
+$current_page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
+if ($current_page <= 0) {
+    $current_page = 1;
+}
 
 $total_page_count = ceil(count($result_array) / PAGE_ITEM_COUNT);
 // print_r($total_page_count);
@@ -96,7 +97,14 @@ echo '<tr>';
             echo  '<a>'.$i.'</a>';
             continue;
         }
-        echo  '<a href="?page='.$i.'&property_number='.$input_property_number.'&asset_name='.$input_asset_name.'&auxiliary_submit_name='.$input_auxiliary_submit_name.'">'.$i.'</a>';
+        echo  '<a href="?page='.$i.'&property_number='.$input_property_number.
+        '&asset_name='.$input_asset_name.
+        '&location='.$input_location.
+        '&auxiliary_submit_name='.$input_auxiliary_submit_name.
+        '&acquisition_price_min='.$input_acquisition_price_min.
+        '&acquisition_price_max='.$input_acquisition_price_max.
+        '&book_value_of_period_min='.$input_book_value_of_period_min.
+        '&book_value_of_period_max='.$input_book_value_of_period_max.'">'.$i.'</a>';
     }
 
 function searchDatas($input_property_number, 
@@ -137,27 +145,53 @@ $result_array = Array();
 foreach ($data_array as $column) {
     $match_flag = true;
         
+    // 財産番号
     if ($input_property_number != "" && $input_property_number != $column[PROPERTY_NUMBER]) {
         $match_flag = false;
     }
 
+    // 資産名称
     if ($input_asset_name != "" && $input_asset_name != $column[ASSET_NAME]) {
         $match_flag = false;
     }
 
+    // 所在地
     if ($input_location != "" && $input_location != $column[LOCATION]) {
         $match_flag = false;
     }
 
+    // 補助科目名称
     if ($input_auxiliary_submit_name != "" && $input_auxiliary_submit_name != $column[AUXILIARY_SUBJECT_NAME]) {
         $match_flag = false;
     }
+
+    // 取得価格（最小値）
+    if ($input_acquisition_price_min != "" && $input_acquisition_price_min > $column[ACQUISITION_PRICE]) {
+        $match_flag = false;
+    } 
+    
+    // 取得価格（最大値）
+    if ($input_acquisition_price_max != "" && $input_acquisition_price_max < $column[ACQUISITION_PRICE]) {
+        // print_r("入った".$column[ACQUISITION_PRICE]);
+        $match_flag = false;
+    }
+
+    // 期末簿価（最小値）
+    // if ($input_book_value_of_period_min != "" && $input_book_value_of_period_min > $column[BOOK_VALUE_OF_PERIOD]) {
+    //     $match_flag = false;
+    // }
+
+    // // 期末簿価（最大値）
+    // if ($input_book_value_of_period_max != "" && $column[BOOK_VALUE_OF_PERIOD] > $input_book_value_of_period_min) {
+    //     $match_flag = false;
+    // }
+
+
   
     if($match_flag) {
          $result_array[] = $column;
     }
 }
-
     return [$header_array, $result_array];
 }
 
@@ -168,12 +202,10 @@ function getDataArray($fileData) {
     
     // $dataは1行分のデータが入った配列
     foreach($fileData as $record_index => $data) {
-        // if (count($data) != 0) {
-            foreach ($data as $data_index => $column) {
-            // [資産名称]:墨田区　の形にする（連想配列）
-            $data_array[$record_index][$data_index] = $column;
-            }
-        // }
+        foreach ($data as $data_index => $column) {
+        // [資産名称]:墨田区　の形にする（連想配列）
+        $data_array[$record_index][$data_index] = $column;
+        }
     }
     return $data_array;
 }
@@ -184,9 +216,6 @@ function getDisplayItemRange($current_page) {
     return $min_display_range;
 }
 ?>
-
-
-
 
 </body>
 
