@@ -74,8 +74,8 @@ $min_display_range = getDisplayItemRange($current_page);
 
 // print_r("最小表示インデックス".$min_display_range."<br>");
     
-$display_array = array_slice($result_array, $min_display_range, PAGE_ITEM_COUNT);
-// print_r("表示アイテム数".count($display_array));
+$display_array = array_slice($result_array, $min_display_range, PAGE_ITEM_COUNT - 1);
+print_r("表示アイテム数".count($display_array));
 echo '<table border="5">
 <tr>';
 foreach($header_array as $header) {
@@ -91,22 +91,55 @@ echo '<tr>';
 }
     echo '</table>';
 
-    for ($i = 1; $i <= $total_page_count; $i++) {
-        if ($i == $current_page) {
-            // 表示中ページナンバーはリンクにしない
-            echo  '<a>'.$i.'</a>';
-            continue;
-        }
-        echo  '<a href="?page='.$i.'&property_number='.$input_property_number.
-        '&asset_name='.$input_asset_name.
+    $queryParam = '&asset_name='.$input_asset_name.
         '&location='.$input_location.
         '&auxiliary_submit_name='.$input_auxiliary_submit_name.
         '&acquisition_price_min='.$input_acquisition_price_min.
         '&acquisition_price_max='.$input_acquisition_price_max.
         '&book_value_of_period_min='.$input_book_value_of_period_min.
-        '&book_value_of_period_max='.$input_book_value_of_period_max.'">'.$i.'</a>';
-    }
+        '&book_value_of_period_max='.$input_book_value_of_period_max;
 
+    // 表示するページの範囲を決める
+    if ($current_page == 1 || $current_page == $total_page_count) {
+        $range = 4;
+    } elseif ($current_page == 2 || $current_page == $total_page_count - 1) {
+        $range = 3;
+    } else {
+        $range = 2;
+    }  
+?>
+
+<div class="pagination">
+<!-- 戻るボタン作成 -->
+<?php if ($current_page >= 2): ?>
+    <a href="index.php?page=<?php echo($current_page - 1); echo($queryParam); ?>" class="page_feed">&laquo;</a>
+
+    <?php else : ;?>
+        <span class="first_last_page">&laquo;</span>
+    <?php endif; ?>
+
+<!-- ページ番号作成 -->
+<?php for ($i = 1; $i <= $total_page_count; $i++) : ?>
+    <!-- 例えば現在10ページ目なら、range=2 ページ表示範囲は 8-12 となる -->
+    <?php if ($i >= $current_page - $range && $i <= $current_page + $range) : ?>
+        <?php if ($i == $current_page) : ?>
+            <!-- 表示中のページはリンクにしない -->
+            <span class="now_page_number"><?php echo $i; ?></span>
+        <?php else: ?>
+            <!-- ページリンク部分 -->
+            <a href="?page=<?php echo $i; echo $queryParam; ?>" class="page_number"><?php echo $i; ?></a>
+        <?php endif; ?>
+    <?php endif; ?>
+ <?php endfor; ?>
+
+ <?php if ($current_page < $total_page_count) : ?>
+    <a href="index.php?page=<?php echo($current_page + 1); echo($queryParam); ?>" class="page_feed">&raquo;</a>
+<?php else : ?>
+    <span class="first_last_page">&raquo;</span>
+<?php endif; ?>
+</div>
+
+<?php
 function searchDatas($input_property_number, 
                     $input_asset_name, 
                     $input_location, 
@@ -166,28 +199,27 @@ foreach ($data_array as $column) {
     }
 
     // 取得価格（最小値）
-    if ($input_acquisition_price_min != "" && $input_acquisition_price_min > $column[ACQUISITION_PRICE]) {
+    if ($input_acquisition_price_min != "" && !($input_acquisition_price_min <= $column[ACQUISITION_PRICE])) {
+        
         $match_flag = false;
-    } 
-    
+    }
+
     // 取得価格（最大値）
-    if ($input_acquisition_price_max != "" && $input_acquisition_price_max < $column[ACQUISITION_PRICE]) {
-        // print_r("入った".$column[ACQUISITION_PRICE]);
+    if ($input_acquisition_price_max != "" && !($column[ACQUISITION_PRICE] <= $input_acquisition_price_max)) {
+        
         $match_flag = false;
     }
 
     // 期末簿価（最小値）
-    // if ($input_book_value_of_period_min != "" && $input_book_value_of_period_min > $column[BOOK_VALUE_OF_PERIOD]) {
-    //     $match_flag = false;
-    // }
+    if ($input_book_value_of_period_min != "" && !($input_book_value_of_period_min <= $column[BOOK_VALUE_OF_PERIOD])) {
+        $match_flag = false;
+    }
 
     // // 期末簿価（最大値）
-    // if ($input_book_value_of_period_max != "" && $column[BOOK_VALUE_OF_PERIOD] > $input_book_value_of_period_min) {
-    //     $match_flag = false;
-    // }
+    if ($input_book_value_of_period_max != "" && !($column[BOOK_VALUE_OF_PERIOD] <= $input_book_value_of_period_max)) {
+        $match_flag = false;
+    }
 
-
-  
     if($match_flag) {
          $result_array[] = $column;
     }
@@ -211,7 +243,7 @@ function getDataArray($fileData) {
 }
 
 function getDisplayItemRange($current_page) {
-    $min_display_range = ($current_page * PAGE_ITEM_COUNT) - PAGE_ITEM_COUNT + 1;
+    $min_display_range = ($current_page - 1) * PAGE_ITEM_COUNT;
 
     return $min_display_range;
 }
