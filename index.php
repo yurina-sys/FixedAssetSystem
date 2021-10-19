@@ -2,6 +2,19 @@
 <head>
     <title>墨田区固定資産台帳表示＆検索</title>
     <meta http-equiv="content-type" charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+ 
+    <!-- Bootstrap Javascript(jQuery含む) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+ 
+    <link rel="stylesheet" href="index.css">
+
 </head>
 
 <body>
@@ -17,29 +30,37 @@ $input_book_value_of_period_min = isset($_GET["book_value_of_period_min"]) ? $_G
 $input_book_value_of_period_max = isset($_GET["book_value_of_period_max"]) ? $_GET["book_value_of_period_max"] : "";
 ?>
 
-<form action="index.php" method="get">
-  <p>
-     財産番号
-     <input type="text" name="property_number" value="<?php echo $input_property_number; ?>">
-     資産名称
-     <input type="text" name="asset_name" value="<?php echo $input_asset_name; ?>">
-     所在地
-     <input type="text" name="location" value="<?php echo $input_location; ?>">
-     補助科目名称
-     <input type="text" name="auxiliary_submit_name" value="<?php echo $input_auxiliary_submit_name; ?>">
-     取得価格
-     <input type="text" name="acquisition_price_min" value="<?php echo $input_acquisition_price_min; ?>">
-     〜
-     <input type="text" name="acquisition_price_max" value="<?php echo $input_acquisition_price_max; ?>">
-     期末簿価
-     <input type="text" name="book_value_of_period_min" value="<?php echo $input_book_value_of_period_min; ?>">
-     〜
-     <input type="text" name="book_value_of_period_max" value="<?php echo $input_book_value_of_period_max; ?>">
-     <br>
-     <input type="submit" value="submit">
-  </p>
- </form>
-
+ <div class="container p-5" th:fragment="search">
+		<form th:action="@{/book/search}" method="get">
+			<div class="form-group form-inline input-group-sm">
+			    <label for="name" class="col-md-2 control-label">財産番号</label>
+			    <input type="text" class="form-control col-md-3"  placeholder="財産番号" name="property_number"  value="<?php echo $input_property_number; ?>">
+			    <label for="isbn" class="col-md-2 control-label">資産名称</label>
+			    <input type="text" class="form-control col-md-5" placeholder="資産名称" name="asset_name" value="<?php echo $input_asset_name; ?>">
+			</div>
+            <div class="form-group form-inline input-group-sm">
+			    <label for="name" class="col-md-2 control-label">補助科目名称</label>
+			    <input type="text" class="form-control col-md-3" placeholder="補助科目名称" name="auxiliary_submit_name" value="<?php echo $input_auxiliary_submit_name; ?>">
+			    <label for="isbn" class="col-md-2 control-label">所在地</label>
+			    <input type="text" class="form-control col-md-5" placeholder="所在地" name="location" value="<?php echo $input_location; ?>">
+			</div>
+			<div class="form-group form-inline input-group-sm">
+			    <label for="price_from" class="col-md-2 control-label">取得価格</label>
+			    <input type="number" class="form-control col-md-1" placeholder="下限" name="acquisition_price_min" value="<?php echo $input_acquisition_price_min; ?>">
+				<label class="col-md-1 control-label">～</label>
+			    <input type="number" class="form-control col-md-1" placeholder="上限" name="acquisition_price_max" value="<?php echo $input_acquisition_price_max; ?>">
+                <label for="price_from" class="col-md-2 control-label">期末簿価</label>
+			    <input type="number" class="form-control col-md-1" placeholder="下限" name="book_value_of_period_min" value="<?php echo $input_book_value_of_period_min; ?>">
+				<label class="col-md-1 control-label">～</label>
+			    <input type="number" class="form-control col-md-1" placeholder="上限" name="book_value_of_period_max" value="<?php echo $input_book_value_of_period_max; ?>">
+			</div>
+			<div class="text-center">
+                <input type="submit" value="検索">
+			</div>
+		</form>
+		<hr>
+    </div>
+ 
 <?php
 // 文字列検索
 const PROPERTY_NUMBER = 0;
@@ -75,17 +96,27 @@ $min_display_range = getDisplayItemRange($current_page);
 // print_r("最小表示インデックス".$min_display_range."<br>");
     
 $display_array = array_slice($result_array, $min_display_range, PAGE_ITEM_COUNT - 1);
-print_r("表示アイテム数".count($display_array));
-echo '<table border="5">
+// print_r("表示アイテム数".count($display_array));
+
+echo '<div class="m-5">';
+echo '<table class="table table-sm table-hover custom-table">
 <tr>';
-foreach($header_array as $header) {
-    echo '<th>'.$header.'</th>';
-}
+    for ($i = 0; $i < count($header_array); $i++) {
+        if ($i == 1 || $i == 9 || $i == 12 || $i == 13) {
+            echo '<th class="text-center">'.$header_array[$i].'</th>';
+        } else {
+            echo '<th class="text-left">'.$header_array[$i].'</th>';
+        }
+    }
 echo '</tr>';
 foreach($display_array as $array) {
 echo '<tr>';
-    foreach($array as $column) {
-        echo '<td>'.$column.'</td>';
+    for ($i = 0; $i < count($array); $i++) {
+        if ($i == 1 || $i == 9 || $i == 12 || $i == 13) {
+            echo '<td class="text-right">'.$array[$i].'</td>';
+        } else {
+            echo '<td class="text-left">'.$array[$i].'</td>';
+        }
     }
     echo '</tr>'; 
 }
@@ -109,7 +140,7 @@ echo '<tr>';
     }  
 ?>
 
-<div class="pagination">
+<div class="text-center">
 <!-- 戻るボタン作成 -->
 <?php if ($current_page >= 2): ?>
     <a href="index.php?page=<?php echo($current_page - 1); echo($queryParam); ?>" class="page_feed">&laquo;</a>
