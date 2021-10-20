@@ -30,29 +30,39 @@ $input_book_value_of_period_min = isset($_GET["book_value_of_period_min"]) ? $_G
 $input_book_value_of_period_max = isset($_GET["book_value_of_period_max"]) ? $_GET["book_value_of_period_max"] : "";
 ?>
 
+<div class="text-center p-3">
+    <h2>墨田区固定資産台帳</h2>
+</div>
+
  <div class="container p-5" th:fragment="search">
 		<form th:action="@{/book/search}" method="get">
 			<div class="form-group form-inline input-group-sm">
 			    <label for="name" class="col-md-2 control-label">財産番号</label>
-			    <input type="text" class="form-control col-md-3"  placeholder="財産番号" name="property_number"  value="<?php echo $input_property_number; ?>">
+			    <input type="text" class="form-control col-md-3" name="property_number"  value="<?php echo $input_property_number; ?>">
 			    <label for="isbn" class="col-md-2 control-label">資産名称</label>
-			    <input type="text" class="form-control col-md-5" placeholder="資産名称" name="asset_name" value="<?php echo $input_asset_name; ?>">
+			    <input type="text" class="form-control col-md-5" name="asset_name" value="<?php echo $input_asset_name; ?>">
 			</div>
             <div class="form-group form-inline input-group-sm">
 			    <label for="name" class="col-md-2 control-label">補助科目名称</label>
-			    <input type="text" class="form-control col-md-3" placeholder="補助科目名称" name="auxiliary_submit_name" value="<?php echo $input_auxiliary_submit_name; ?>">
-			    <label for="isbn" class="col-md-2 control-label">所在地</label>
-			    <input type="text" class="form-control col-md-5" placeholder="所在地" name="location" value="<?php echo $input_location; ?>">
+			    <input type="text" class="form-control col-md-3" name="auxiliary_submit_name" value="<?php echo $input_auxiliary_submit_name; ?>">
+			    <label for="location" class="col-md-2 control-label">所在地</label>
+			    <input type="text" class="form-control col-md-5" name="location" value="<?php echo $input_location; ?>">
 			</div>
 			<div class="form-group form-inline input-group-sm">
 			    <label for="price_from" class="col-md-2 control-label">取得価格</label>
-			    <input type="number" class="form-control col-md-1" placeholder="下限" name="acquisition_price_min" value="<?php echo $input_acquisition_price_min; ?>">
+			    <input type="number" class="form-control col-md-1" name="acquisition_price_min" value="<?php echo $input_acquisition_price_min; ?>">
 				<label class="col-md-1 control-label">～</label>
-			    <input type="number" class="form-control col-md-1" placeholder="上限" name="acquisition_price_max" value="<?php echo $input_acquisition_price_max; ?>">
+			    <input type="number" class="form-control col-md-1" name="acquisition_price_max" value="<?php echo $input_acquisition_price_max; ?>">
                 <label for="price_from" class="col-md-2 control-label">期末簿価</label>
-			    <input type="number" class="form-control col-md-1" placeholder="下限" name="book_value_of_period_min" value="<?php echo $input_book_value_of_period_min; ?>">
+			    <input type="number" class="form-control col-md-1" name="book_value_of_period_min" value="<?php echo $input_book_value_of_period_min; ?>">
 				<label class="col-md-1 control-label">～</label>
-			    <input type="number" class="form-control col-md-1" placeholder="上限" name="book_value_of_period_max" value="<?php echo $input_book_value_of_period_max; ?>">
+			    <input type="number" class="form-control col-md-1" name="book_value_of_period_max" value="<?php echo $input_book_value_of_period_max; ?>">
+			</div>
+            <div class="form-group form-inline input-group-sm　form-check">
+			    <label for="complete_match" class="col-md-2 offset-md-3">完全一致</label>
+			    <input type="radio" checked="checked" class="form-check-input　col-md-1" name="match_type" value="<?php echo $input_auxiliary_submit_name; ?>">
+			    <label for="part_match" class="col-md-2 control-label">部分一致</label>
+			    <input type="radio" class="form-check-input　col-md-1" name="match_type" value="<?php echo $input_location; ?>">
 			</div>
 			<div class="text-center">
                 <input type="submit" value="検索">
@@ -60,8 +70,9 @@ $input_book_value_of_period_max = isset($_GET["book_value_of_period_max"]) ? $_G
 		</form>
 		<hr>
     </div>
- 
+
 <?php
+
 // 文字列検索
 const PROPERTY_NUMBER = 0;
 const ASSET_NAME = 2;
@@ -72,55 +83,31 @@ const AUXILIARY_SUBJECT_NAME = 5;
 const ACQUISITION_PRICE = 12;
 const BOOK_VALUE_OF_PERIOD = 13;
 
+// 1ページあたりに表示するアイテム数
 const PAGE_ITEM_COUNT = 20;
 
 // 絞り込み処理実行
 [$header_array, $result_array] = searchDatas($input_property_number,
-                                                $input_asset_name,
-                                                $input_location,
-                                                $input_auxiliary_submit_name,
-                                                $input_acquisition_price_min,
-                                                $input_acquisition_price_max,
-                                                $input_book_value_of_period_min,
-                                                $input_book_value_of_period_max);
+                                            $input_asset_name,
+                                            $input_location,
+                                            $input_auxiliary_submit_name,
+                                            $input_acquisition_price_min,
+                                            $input_acquisition_price_max,
+                                            $input_book_value_of_period_min,
+                                            $input_book_value_of_period_max);
 
 $current_page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
 if ($current_page <= 0) {
     $current_page = 1;
 }
 
+// 全ページ数
 $total_page_count = ceil(count($result_array) / PAGE_ITEM_COUNT);
-// print_r($total_page_count);
-$min_display_range = getDisplayItemRange($current_page);
+// 表示アイテム配列の最小インデックス
+$min_display_index = getDisplayItemIndex($current_page);
+// 現在ページで表示するアイテム
+$display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT);
 
-// print_r("最小表示インデックス".$min_display_range."<br>");
-    
-$display_array = array_slice($result_array, $min_display_range, PAGE_ITEM_COUNT - 1);
-// print_r("表示アイテム数".count($display_array));
-
-echo '<div class="m-5">';
-echo '<table class="table table-sm table-hover custom-table">
-<tr>';
-    for ($i = 0; $i < count($header_array); $i++) {
-        if ($i == 1 || $i == 9 || $i == 12 || $i == 13) {
-            echo '<th class="text-center">'.$header_array[$i].'</th>';
-        } else {
-            echo '<th class="text-left">'.$header_array[$i].'</th>';
-        }
-    }
-echo '</tr>';
-foreach($display_array as $array) {
-echo '<tr>';
-    for ($i = 0; $i < count($array); $i++) {
-        if ($i == 1 || $i == 9 || $i == 12 || $i == 13) {
-            echo '<td class="text-right">'.$array[$i].'</td>';
-        } else {
-            echo '<td class="text-left">'.$array[$i].'</td>';
-        }
-    }
-    echo '</tr>'; 
-}
-    echo '</table>';
 
     $queryParam = '&asset_name='.$input_asset_name.
         '&location='.$input_location.
@@ -141,6 +128,35 @@ echo '<tr>';
 ?>
 
 <div class="text-center">
+    <p>全<?php echo($total_page_count); ?>ページ　<?php echo(count($result_array)); ?>件中 <?php echo(getDisplayItemCount($current_page,$min_display_index, $result_array)); ?>件表示</p>
+</div>
+
+<div class="m-3">
+    <table class="table table-sm table-hover custom-table">
+        <tr>
+            <?php for ($i = 0; $i < count($header_array); $i++) : ?>
+                <?php if ($i == 1 || $i == 9 || $i == 12 || $i == 13) : ?> 
+                    <th class="text-center"><?php echo($header_array[$i]); ?></th>
+                <?php else : ;?>
+                    <th class="text-left"><?php echo($header_array[$i]); ?></th>
+                <?php endif; ?>
+            <?php endfor; ?>
+        </tr>
+        <?php foreach($display_array as $array) : ?>
+            <tr>
+                <?php for ($i = 0; $i < count($array); $i++) : ?>
+                    <?php if ($i == 1 || $i == 9 || $i == 12 || $i == 13) : ?>
+                        <td class="text-right"><?php echo($array[$i]); ?></td>
+                    <?php else : ;?>
+                        <td class="text-left"><?php echo($array[$i]); ?></td>
+                    <?php endif; ?>
+                <?php endfor; ?>
+             </tr>  
+        <?php endforeach; ?>
+    </table>
+</div>
+
+<div class="text-center mb-5">
 <!-- 戻るボタン作成 -->
 <?php if ($current_page >= 2): ?>
     <a href="index.php?page=<?php echo($current_page - 1); echo($queryParam); ?>" class="page_feed">&laquo;</a>
@@ -179,7 +195,6 @@ function searchDatas($input_property_number,
                     $input_acquisition_price_max,
                     $input_book_value_of_period_min,
                     $input_book_value_of_period_max) {
-    // print_r("入った");
 
 $fileData = new SplFileObject('墨田区固定資産台帳_202103.tsv');
 $fileData -> setFlags(SplFileObject::READ_CSV);
@@ -273,10 +288,17 @@ function getDataArray($fileData) {
     return $data_array;
 }
 
-function getDisplayItemRange($current_page) {
-    $min_display_range = ($current_page - 1) * PAGE_ITEM_COUNT;
+// 表示するアイテムの最初のインデックスを取得
+function getDisplayItemIndex($current_page) {
+    $min_display_index = ($current_page - 1) * PAGE_ITEM_COUNT;
 
-    return $min_display_range;
+    return $min_display_index;
+}
+
+// 表示しているアイテムが何件か取得
+function getDisplayItemCount($current_page, $min_display_range, $display_array) {
+    // (現在ページ - 1) * 20件　＋　現在画面に表示されている件数
+    return ($current_page - 1) * PAGE_ITEM_COUNT + count(array_slice($display_array, $min_display_range, PAGE_ITEM_COUNT));
 }
 ?>
 
