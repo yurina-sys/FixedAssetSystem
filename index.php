@@ -60,9 +60,9 @@ $input_book_value_of_period_max = isset($_GET["book_value_of_period_max"]) ? $_G
 			</div>
             <div class="form-group form-inline input-group-sm　form-check">
 			    <label for="complete_match" class="col-md-2 offset-md-3">完全一致</label>
-			    <input type="radio" checked="checked" class="form-check-input　col-md-1" name="match_type" value="<?php echo $input_auxiliary_submit_name; ?>">
+			    <input type="radio" <?php echo(getMatchType(true, false)); ?> class="form-check-input　col-md-1" name="match_type" value="complete_match">
 			    <label for="part_match" class="col-md-2 control-label">部分一致</label>
-			    <input type="radio" class="form-check-input　col-md-1" name="match_type" value="<?php echo $input_location; ?>">
+			    <input type="radio" <?php echo(getMatchType(false, true)); ?> class="form-check-input　col-md-1" name="match_type" value="part_match">
 			</div>
 			<div class="text-center">
                 <input type="submit" value="検索">
@@ -300,6 +300,22 @@ function getDisplayItemCount($current_page, $min_display_range, $display_array) 
     // (現在ページ - 1) * 20件　＋　現在画面に表示されている件数
     return ($current_page - 1) * PAGE_ITEM_COUNT + count(array_slice($display_array, $min_display_range, PAGE_ITEM_COUNT));
 }
+
+// ラジオボタンのgetから完全一致か部分一致か判定し出力
+function getMatchType($is_complete_match, $is_part_match) {
+    if (isset($_GET["match_type"])) {
+        $match_type = $_GET["match_type"];
+
+        if ($match_type == "part_match") {
+            // 部分一致のラジオボタンをチェック状態に
+            return $is_part_match ? 'checked="checked"' : '';
+        } else {
+            // 完全一致のラジオボタンをチェック状態に
+            return $is_complete_match ? 'checked="checked"' : '';
+        }
+    }
+}
+
 ?>
 
 </body>
