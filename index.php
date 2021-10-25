@@ -21,13 +21,28 @@
 
 <?php
 $input_property_number = isset($_GET["property_number"]) ? $_GET["property_number"] : "";
+$input_property_number = extraTrim($input_property_number);
+
 $input_asset_name = isset($_GET["asset_name"]) ? $_GET["asset_name"] : "";
+$input_asset_name = extraTrim($input_asset_name);
+
 $input_location = isset($_GET["location"]) ? $_GET["location"] : "";
+$input_location = extraTrim($input_location);
+
 $input_auxiliary_submit_name = isset($_GET["auxiliary_submit_name"]) ? $_GET["auxiliary_submit_name"] : "";
+$input_auxiliary_submit_name = extraTrim($input_auxiliary_submit_name);
+
 $input_acquisition_price_min = isset($_GET["acquisition_price_min"]) ? $_GET["acquisition_price_min"] : "";
+$input_acquisition_price_min = extraTrim($input_acquisition_price_min);
+
 $input_acquisition_price_max = isset($_GET["acquisition_price_max"]) ? $_GET["acquisition_price_max"] : "";
+$input_acquisition_price_max = extraTrim($input_acquisition_price_max);
+
 $input_book_value_of_period_min = isset($_GET["book_value_of_period_min"]) ? $_GET["book_value_of_period_min"] : "";
+$input_book_value_of_period_min = extraTrim($input_book_value_of_period_min);
+
 $input_book_value_of_period_max = isset($_GET["book_value_of_period_max"]) ? $_GET["book_value_of_period_max"] : "";
+$input_book_value_of_period_max = extraTrim($input_book_value_of_period_max);
 ?>
 
 <div class="text-center p-3">
@@ -60,9 +75,9 @@ $input_book_value_of_period_max = isset($_GET["book_value_of_period_max"]) ? $_G
 			</div>
             <div class="form-group form-inline input-group-sm　form-check">
 			    <label for="complete_match" class="col-md-2 offset-md-3">完全一致</label>
-			    <input type="radio" <?php echo(getMatchType(true, false)); ?> class="form-check-input　col-md-1" name="match_type" value="complete_match">
+			    <input type="radio" <?php echo(getMatchTypeTag(true, false)); ?> class="form-check-input　col-md-1" name="match_type" value="complete_match">
 			    <label for="part_match" class="col-md-2 control-label">部分一致</label>
-			    <input type="radio" <?php echo(getMatchType(false, true)); ?> class="form-check-input　col-md-1" name="match_type" value="part_match">
+			    <input type="radio" <?php echo(getMatchTypeTag(false, true)); ?> class="form-check-input　col-md-1" name="match_type" value="part_match">
 			</div>
 			<div class="text-center">
                 <input type="submit" value="検索">
@@ -109,13 +124,15 @@ $min_display_index = getDisplayItemIndex($current_page);
 $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT);
 
 
-    $queryParam = '&asset_name='.$input_asset_name.
-        '&location='.$input_location.
-        '&auxiliary_submit_name='.$input_auxiliary_submit_name.
-        '&acquisition_price_min='.$input_acquisition_price_min.
-        '&acquisition_price_max='.$input_acquisition_price_max.
-        '&book_value_of_period_min='.$input_book_value_of_period_min.
-        '&book_value_of_period_max='.$input_book_value_of_period_max;
+    $queryParam = '&property_number='.rawurlencode($input_property_number).
+        '&asset_name='.rawurlencode($input_asset_name).
+        '&location='.rawurlencode($input_location).
+        '&auxiliary_submit_name='.rawurlencode($input_auxiliary_submit_name).
+        '&acquisition_price_min='.rawurlencode($input_acquisition_price_min).
+        '&acquisition_price_max='.rawurlencode($input_acquisition_price_max).
+        '&book_value_of_period_min='.rawurlencode($input_book_value_of_period_min).
+        '&book_value_of_period_max='.rawurlencode($input_book_value_of_period_max).
+        '&match_type='.getMatchType();
 
     // 表示するページの範囲を決める
     if ($current_page == 1 || $current_page == $total_page_count) {
@@ -124,7 +141,7 @@ $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT)
         $range = 3;
     } else {
         $range = 2;
-    }  
+    }
 ?>
 
 <div class="text-center">
@@ -145,8 +162,13 @@ $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT)
         <?php foreach($display_array as $array) : ?>
             <tr>
                 <?php for ($i = 0; $i < count($array); $i++) : ?>
-                    <?php if ($i == 1 || $i == 9 || $i == 12 || $i == 13) : ?>
+                    <?php if ($i == 1 || $i == 5) : ?>
+                        <td class="text-center"><?php echo($array[$i]); ?></td>
+                    <?php elseif ($i == 9) : ?> 
                         <td class="text-right"><?php echo($array[$i]); ?></td>
+                    <?php elseif ($i == 12 || $i == 13) : ?> 
+                        <!-- 金額をカンマ3桁区切りで整形してから表示 -->
+                        <td class="text-right"><?php echo(formatAmountMoney($array[$i])); ?></td>
                     <?php else : ;?>
                         <td class="text-left"><?php echo($array[$i]); ?></td>
                     <?php endif; ?>
@@ -219,58 +241,158 @@ $header_array = $imploded_array[0];
 // データ本体の配列
 $data_array = getDataArray($imploded_array);
 
-$result_array = Array();
-// 入力値とデータを比較（絞り込み）
-foreach ($data_array as $column) {
-    $match_flag = true;
-        
-    // 財産番号
-    if ($input_property_number != "" && $input_property_number != $column[PROPERTY_NUMBER]) {
-        $match_flag = false;
-    }
-
-    // 資産名称
-    if ($input_asset_name != "" && $input_asset_name != $column[ASSET_NAME]) {
-        $match_flag = false;
-    }
-
-    // 所在地
-    if ($input_location != "" && $input_location != $column[LOCATION]) {
-        $match_flag = false;
-    }
-
-    // 補助科目名称
-    if ($input_auxiliary_submit_name != "" && $input_auxiliary_submit_name != $column[AUXILIARY_SUBJECT_NAME]) {
-        $match_flag = false;
-    }
-
-    // 取得価格（最小値）
-    if ($input_acquisition_price_min != "" && !($input_acquisition_price_min <= $column[ACQUISITION_PRICE])) {
-        
-        $match_flag = false;
-    }
-
-    // 取得価格（最大値）
-    if ($input_acquisition_price_max != "" && !($column[ACQUISITION_PRICE] <= $input_acquisition_price_max)) {
-        
-        $match_flag = false;
-    }
-
-    // 期末簿価（最小値）
-    if ($input_book_value_of_period_min != "" && !($input_book_value_of_period_min <= $column[BOOK_VALUE_OF_PERIOD])) {
-        $match_flag = false;
-    }
-
-    // // 期末簿価（最大値）
-    if ($input_book_value_of_period_max != "" && !($column[BOOK_VALUE_OF_PERIOD] <= $input_book_value_of_period_max)) {
-        $match_flag = false;
-    }
-
-    if($match_flag) {
-         $result_array[] = $column;
-    }
+if (getMatchType() == "part_match") {
+    // 部分一致で絞り込み
+    $result_array = partMatch ($data_array,
+                                    $input_property_number, 
+                                    $input_asset_name, 
+                                    $input_location, 
+                                    $input_auxiliary_submit_name, 
+                                    $input_acquisition_price_min,
+                                    $input_acquisition_price_max,
+                                    $input_book_value_of_period_min,
+                                    $input_book_value_of_period_max);
+} else {
+    // 完全一致で絞り込み
+    $result_array = completeMatch ($data_array,
+                                    $input_property_number, 
+                                    $input_asset_name, 
+                                    $input_location, 
+                                    $input_auxiliary_submit_name, 
+                                    $input_acquisition_price_min,
+                                    $input_acquisition_price_max,
+                                    $input_book_value_of_period_min,
+                                    $input_book_value_of_period_max);
 }
     return [$header_array, $result_array];
+}
+
+// 入力値からデータを絞り込み（完全一致）
+function completeMatch ($data_array,
+                        $input_property_number, 
+                        $input_asset_name, 
+                        $input_location, 
+                        $input_auxiliary_submit_name, 
+                        $input_acquisition_price_min,
+                        $input_acquisition_price_max,
+                        $input_book_value_of_period_min,
+                        $input_book_value_of_period_max) {
+                        
+    $result_array = Array();
+    echo ("完全一致");
+    foreach ($data_array as $column) {
+        $match_flag = true;
+                                    
+        // 財産番号
+        if ($input_property_number != "" && $input_property_number != $column[PROPERTY_NUMBER]) {
+            $match_flag = false;
+        }
+                            
+        // 資産名称
+        if ($input_asset_name != "" && $input_asset_name != $column[ASSET_NAME]) {
+            $match_flag = false;
+        }
+                            
+       // 所在地
+        if ($input_location != "" && $input_location != $column[LOCATION]) {
+            $match_flag = false;
+        }
+                            
+        // 補助科目名称
+        if ($input_auxiliary_submit_name != "" && $input_auxiliary_submit_name != $column[AUXILIARY_SUBJECT_NAME]) {
+            $match_flag = false;
+        }
+                            
+        // 取得価格（最小値）
+        if ($input_acquisition_price_min != "" && !($input_acquisition_price_min <= $column[ACQUISITION_PRICE])) {                          
+            $match_flag = false;
+        }
+                            
+        // 取得価格（最大値）
+        if ($input_acquisition_price_max != "" && !($column[ACQUISITION_PRICE] <= $input_acquisition_price_max)) {                          
+            $match_flag = false;
+        }
+                            
+        // 期末簿価（最小値）
+        if ($input_book_value_of_period_min != "" && !($input_book_value_of_period_min <= $column[BOOK_VALUE_OF_PERIOD])) {
+            $match_flag = false;
+        }
+                            
+        // 期末簿価（最大値）
+        if ($input_book_value_of_period_max != "" && !($column[BOOK_VALUE_OF_PERIOD] <= $input_book_value_of_period_max)) {
+            $match_flag = false;
+        }
+                            
+        if($match_flag) {
+             $result_array[] = $column;
+        }
+    }
+    // 絞り込み結果
+    return $result_array;
+}
+
+// 入力値からデータを絞り込み（部分一致）
+function partMatch ($data_array,
+                        $input_property_number, 
+                        $input_asset_name, 
+                        $input_location, 
+                        $input_auxiliary_submit_name, 
+                        $input_acquisition_price_min,
+                        $input_acquisition_price_max,
+                        $input_book_value_of_period_min,
+                        $input_book_value_of_period_max) {
+                        
+    $result_array = Array();
+    echo ("部分一致");
+    foreach ($data_array as $column) {
+        $match_flag = true;
+                                    
+        // 財産番号
+        if ($input_property_number != "" && $input_property_number != $column[PROPERTY_NUMBER]) {
+            $match_flag = false;
+        }
+                            
+        // 資産名称
+        if ($input_asset_name != "" && $input_asset_name != $column[ASSET_NAME]) {
+            $match_flag = false;
+        }
+                            
+       // 所在地
+        if ($input_location != "" && $input_location != $column[LOCATION]) {
+            $match_flag = false;
+        }
+                            
+        // 補助科目名称
+        if ($input_auxiliary_submit_name != "" && $input_auxiliary_submit_name != $column[AUXILIARY_SUBJECT_NAME]) {
+            $match_flag = false;
+        }
+                            
+        // 取得価格（最小値）
+        if ($input_acquisition_price_min != "" && !($input_acquisition_price_min <= $column[ACQUISITION_PRICE])) {                          
+            $match_flag = false;
+        }
+                            
+        // 取得価格（最大値）
+        if ($input_acquisition_price_max != "" && !($column[ACQUISITION_PRICE] <= $input_acquisition_price_max)) {                          
+            $match_flag = false;
+        }
+                            
+        // 期末簿価（最小値）
+        if ($input_book_value_of_period_min != "" && !($input_book_value_of_period_min <= $column[BOOK_VALUE_OF_PERIOD])) {
+            $match_flag = false;
+        }
+                            
+        // 期末簿価（最大値）
+        if ($input_book_value_of_period_max != "" && !($column[BOOK_VALUE_OF_PERIOD] <= $input_book_value_of_period_max)) {
+            $match_flag = false;
+        }
+                            
+        if($match_flag) {
+             $result_array[] = $column;
+        }
+    }
+    // 絞り込み結果
+    return $result_array;
 }
 
 function getDataArray($fileData) {
@@ -301,19 +423,44 @@ function getDisplayItemCount($current_page, $min_display_range, $display_array) 
     return ($current_page - 1) * PAGE_ITEM_COUNT + count(array_slice($display_array, $min_display_range, PAGE_ITEM_COUNT));
 }
 
-// ラジオボタンのgetから完全一致か部分一致か判定し出力
-function getMatchType($is_complete_match, $is_part_match) {
+// ラジオボタン完全一致か部分一致をチェック状態にするタグ取得
+function getMatchTypeTag($is_complete_match, $is_part_match) {
+    if (getMatchType() == "part_match") {
+        // 部分一致のラジオボタンをチェック状態に
+        return $is_part_match ? 'checked="checked"' : '';
+    } else {
+        // 完全一致のラジオボタンをチェック状態に
+        return $is_complete_match ? 'checked="checked"' : '';
+    }
+}
+
+// ラジオボタンのgetから完全一致か部分一致か判定
+function getMatchType() {
     if (isset($_GET["match_type"])) {
         $match_type = $_GET["match_type"];
 
         if ($match_type == "part_match") {
-            // 部分一致のラジオボタンをチェック状態に
-            return $is_part_match ? 'checked="checked"' : '';
+            // 部分一致
+            return 'part_match';
         } else {
-            // 完全一致のラジオボタンをチェック状態に
-            return $is_complete_match ? 'checked="checked"' : '';
+            // 完全一致
+            return 'complete_match';
         }
+    } else {
+        // 完全一致（デフォルト）
+        return 'complete_match';
     }
+}
+
+// 金額をカンマ3桁区切り+円に整形
+function formatAmountMoney($money) {
+    return number_format($money).'円';
+}
+
+// 全角・半角空白（\s)とNULLバイト（\x00）を取り除く
+function extraTrim($text) {
+    // \A（文字の始端）  \z（文字の終端）　/u（UTF-8として処理、パターン修飾子）
+    return preg_replace('/\A[\x00\s]++|[\x00\s]++\z/u', '', $text);
 }
 
 ?>
