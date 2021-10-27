@@ -243,7 +243,7 @@ $data_array = getDataArray($imploded_array);
 
 if (getMatchType() == "part_match") {
     // 部分一致で絞り込み
-    $result_array = partMatch ($data_array,
+    $result_array = partMatch($data_array,
                                     $input_property_number, 
                                     $input_asset_name, 
                                     $input_location, 
@@ -279,48 +279,56 @@ function completeMatch ($data_array,
                         $input_book_value_of_period_max) {
                         
     $result_array = Array();
-    echo ("完全一致");
+
     foreach ($data_array as $column) {
         $match_flag = true;
                                     
         // 財産番号
         if ($input_property_number != "" && $input_property_number != $column[PROPERTY_NUMBER]) {
             $match_flag = false;
+            continue;
         }
                             
         // 資産名称
         if ($input_asset_name != "" && $input_asset_name != $column[ASSET_NAME]) {
             $match_flag = false;
+            continue;
         }
                             
        // 所在地
         if ($input_location != "" && $input_location != $column[LOCATION]) {
             $match_flag = false;
+            continue;
         }
                             
         // 補助科目名称
         if ($input_auxiliary_submit_name != "" && $input_auxiliary_submit_name != $column[AUXILIARY_SUBJECT_NAME]) {
             $match_flag = false;
+            continue;
         }
                             
         // 取得価格（最小値）
         if ($input_acquisition_price_min != "" && !($input_acquisition_price_min <= $column[ACQUISITION_PRICE])) {                          
             $match_flag = false;
+            continue;
         }
                             
         // 取得価格（最大値）
         if ($input_acquisition_price_max != "" && !($column[ACQUISITION_PRICE] <= $input_acquisition_price_max)) {                          
             $match_flag = false;
+            continue;
         }
                             
         // 期末簿価（最小値）
         if ($input_book_value_of_period_min != "" && !($input_book_value_of_period_min <= $column[BOOK_VALUE_OF_PERIOD])) {
             $match_flag = false;
+            continue;
         }
                             
         // 期末簿価（最大値）
         if ($input_book_value_of_period_max != "" && !($column[BOOK_VALUE_OF_PERIOD] <= $input_book_value_of_period_max)) {
             $match_flag = false;
+            continue;
         }
                             
         if($match_flag) {
@@ -343,28 +351,32 @@ function partMatch ($data_array,
                         $input_book_value_of_period_max) {
                         
     $result_array = Array();
-    echo ("部分一致");
+  
     foreach ($data_array as $column) {
         $match_flag = true;
                                     
         // 財産番号
-        if ($input_property_number != "" && $input_property_number != $column[PROPERTY_NUMBER]) {
+        if ($input_property_number != "" && mb_strpos($column[PROPERTY_NUMBER], $input_property_number) === false) {
             $match_flag = false;
+            continue;
         }
                             
         // 資産名称
-        if ($input_asset_name != "" && $input_asset_name != $column[ASSET_NAME]) {
+        if ($input_asset_name != "" && mb_strpos($column[ASSET_NAME], $input_asset_name) === false) {
             $match_flag = false;
+            continue;
         }
                             
        // 所在地
-        if ($input_location != "" && $input_location != $column[LOCATION]) {
+        if ($input_location != "" && mb_strpos($column[LOCATION], $input_location) === false) {
             $match_flag = false;
+            continue;
         }
                             
         // 補助科目名称
-        if ($input_auxiliary_submit_name != "" && $input_auxiliary_submit_name != $column[AUXILIARY_SUBJECT_NAME]) {
+        if ($input_auxiliary_submit_name != "" && mb_strpos($column[AUXILIARY_SUBJECT_NAME], $input_auxiliary_submit_name) === false) {
             $match_flag = false;
+            continue;
         }
                             
         // 取得価格（最小値）
