@@ -53,25 +53,25 @@ $input_book_value_of_period_max = extraTrim($input_book_value_of_period_max);
 		<form th:action="@{/book/search}" method="get">
 			<div class="form-group form-inline input-group-sm">
 			    <label for="name" class="col-md-2 control-label">財産番号</label>
-			    <input type="text" class="form-control col-md-3" name="property_number"  value="<?php echo $input_property_number; ?>">
+			    <input type="text" class="form-control col-md-3" name="property_number" value="<?php echo $input_property_number; ?>" autocomplete="off">
 			    <label for="isbn" class="col-md-2 control-label">資産名称</label>
-			    <input type="text" class="form-control col-md-5" name="asset_name" value="<?php echo $input_asset_name; ?>">
+			    <input type="text" class="form-control col-md-5" name="asset_name" value="<?php echo $input_asset_name; ?>" autocomplete="off">
 			</div>
             <div class="form-group form-inline input-group-sm">
 			    <label for="name" class="col-md-2 control-label">補助科目名称</label>
-			    <input type="text" class="form-control col-md-3" name="auxiliary_submit_name" value="<?php echo $input_auxiliary_submit_name; ?>">
+			    <input type="text" class="form-control col-md-3" name="auxiliary_submit_name" value="<?php echo $input_auxiliary_submit_name; ?>" autocomplete="off">
 			    <label for="location" class="col-md-2 control-label">所在地</label>
-			    <input type="text" class="form-control col-md-5" name="location" value="<?php echo $input_location; ?>">
+			    <input type="text" class="form-control col-md-5" name="location" value="<?php echo $input_location; ?>"  autocomplete="off">
 			</div>
 			<div class="form-group form-inline input-group-sm">
 			    <label for="price_from" class="col-md-2 control-label">取得価格</label>
-			    <input type="number" class="form-control col-md-1" name="acquisition_price_min" value="<?php echo $input_acquisition_price_min; ?>">
+			    <input type="number" class="form-control col-md-1 no-spin" name="acquisition_price_min" value="<?php echo $input_acquisition_price_min; ?>" autocomplete="off">
 				<label class="col-md-1 control-label">～</label>
-			    <input type="number" class="form-control col-md-1" name="acquisition_price_max" value="<?php echo $input_acquisition_price_max; ?>">
+			    <input type="number" class="form-control col-md-1 no-spin" name="acquisition_price_max" value="<?php echo $input_acquisition_price_max; ?>" autocomplete="off">
                 <label for="price_from" class="col-md-2 control-label">期末簿価</label>
-			    <input type="number" class="form-control col-md-1" name="book_value_of_period_min" value="<?php echo $input_book_value_of_period_min; ?>">
+			    <input type="number" class="form-control col-md-1 no-spin" name="book_value_of_period_min" value="<?php echo $input_book_value_of_period_min; ?>" autocomplete="off">
 				<label class="col-md-1 control-label">～</label>
-			    <input type="number" class="form-control col-md-1" name="book_value_of_period_max" value="<?php echo $input_book_value_of_period_max; ?>">
+			    <input type="number" class="form-control col-md-1 no-spin" name="book_value_of_period_max" value="<?php echo $input_book_value_of_period_max; ?>" autocomplete="off">
 			</div>
             <div class="form-group form-inline input-group-sm　form-check">
 			    <label for="complete_match" class="col-md-2 offset-md-3">完全一致</label>
@@ -143,75 +143,129 @@ $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT)
     }
 ?>
 
+<!-- HTML生成、出力 -->
 <div class="text-center">
     <p>全<?php echo($total_page_count); ?>ページ　<?php echo(count($result_array)); ?>件中 <?php echo(getDisplayItemCount($current_page,$min_display_index, $result_array)); ?>件表示</p>
 </div>
 
+<?php 
+$additional_class = "";
+$additional_data = ""; ?>
+
 <div class="m-3">
     <table class="table tr-hover table-sm custom-table">
+        <!-- データ名の列 -->
         <tr>
             <?php for ($i = 0; $i < count($header_array); $i++) : ?>
-                <?php if ($i == 1 || $i == 3 || $i == 5 || $i == 7 || $i == 9 || $i ==11) : ?>
-                    <th class="text-center background-pink"><?php echo($header_array[$i]); ?></th>
-                <?php else : ;?>
-                    <th class="text-center background-blue"><?php echo($header_array[$i]); ?></th>
-                <?php endif; ?>
+                <?php 
+                if ($i == 1 || $i == 3 || $i == 5 || $i == 7 || $i == 9 || $i ==11) {
+                    $additional_class = "text-center background-pink";
+                } else {
+                    $additional_class = "text-center background-blue";
+                }
+                ?>
+                <!-- HTML出力 -->
+                <th class="<?php echo($additional_class); ?>"><?php echo($header_array[$i]); ?></th>
             <?php endfor; ?>
         </tr>
+
+        <!-- 各データの列 -->
         <?php foreach($display_array as $array) : ?>
             <tr>
-                <?php for ($i = 0; $i < count($array); $i++) : ?>
-                    <?php if ($i == 1 || $i == 5 || $i == 6 || $i == 7 || $i == 11) : ?>
-                        <td class="text-center"><?php echo($array[$i]); ?></td>
-                    <?php elseif ($i == 9) : ?> 
-                    <!-- 数量+平方メートル -->
-                        <td class="text-right"><?php echo($array[$i].$array[$i + 1]); ?></td>
-                    <?php elseif ($i == 10) : ?>
-                    <!-- 単位はスルー -->
-                        <?php continue; ?>
-                    <?php elseif ($i == 12 || $i == 13) : ?> 
-                        <!-- 金額をカンマ3桁区切りで整形してから表示 -->
-                        <td class="text-right"><?php echo(formatAmountMoney($array[$i])); ?></td>
-                    <?php else : ;?>
-                        <td class="text-left"><?php echo($array[$i]); ?></td>
-                    <?php endif; ?>
-                <?php endfor; ?>
+                <?php for ($i = 0; $i < count($array); $i++) : ?>  
+                    <?php 
+                    if ($i == 1 || $i == 5 || $i == 6 || $i == 7 || $i == 8 || $i == 11) {
+                        $additional_class = "text-center";
+                        $additional_data = $array[$i];
+                    } else if ($i == 9) {
+                        // 数量+平方メートル
+                        $additional_class = "text-right";
+                        $additional_data = $array[$i].$array[$i + 1];
+                    } else if ($i == 10) {
+                        // 単位はスルー
+                        continue;
+                    } else if ($i == 12 || $i == 13) {
+                        // 金額をカンマ3桁区切りで整形してから表示
+                        $additional_class = "text-right";
+                        $additional_data = formatAmountMoney($array[$i]);
+                    } else {
+                        $additional_class = "text-left";
+                        $additional_data = $array[$i];
+                    }
+                    ?>
+                    <!-- HTML出力 -->
+                    <td class="<?php echo($additional_class) ?>"><?php echo($additional_data); ?></td>
+                <?php endfor; ?>           
              </tr>  
         <?php endforeach; ?>
     </table>
 </div>
 
 <div class="text-center mb-5">
-<!-- 戻るボタン作成 -->
-<?php if ($current_page >= 2): ?>
-    <a class="page-nation" href="index.php?page=<?php echo($current_page - 1); echo($queryParam); ?>" class="page_feed">&laquo;</a>
+    <!-- 戻るボタン作成 --> 
+    <?php 
+    $tag = "";
+    $href = "";
+    $additional_class = "";
+    if ($current_page >= 2) {
+        $tag = "a";
+        $href = "href=\"?page=".($current_page - 1).$queryParam."\"";
+        $additional_class = "page_feed page-nation";
+    } else {
+        // 1ページ目だからリンクにしない
+        $tag = "span";
+        $additional_class = "first_last_page";
+    }
+    ?>
+    <!-- HTML出力 -->
+    <<?php echo($tag); ?> <?php echo($href) ?> class="<?php echo($additional_class); ?>">&laquo;</<?php echo($tag); ?>>
 
-    <?php else : ;?>
-        <span class="first_last_page">&laquo;</span>
-    <?php endif; ?>
-
-<!-- ページ番号作成 -->
-<?php for ($i = 1; $i <= $total_page_count; $i++) : ?>
-    <!-- 例えば現在10ページ目なら、range=2 ページ表示範囲は 8-12 となる -->
-    <?php if ($i >= $current_page - $range && $i <= $current_page + $range) : ?>
-        <?php if ($i == $current_page) : ?>
-            <!-- 表示中のページはリンクにしない -->
-            <span class="now_page_number"><?php echo $i; ?></span>
-        <?php else: ?>
-            <!-- ページリンク部分 -->
-            <a  class="page-nation" href="?page=<?php echo $i; echo $queryParam; ?>" class="page_number"><?php echo $i; ?></a>
+    <!-- ページ番号作成 -->
+    <?php for ($i = 1; $i <= $total_page_count; $i++) : ?>
+        <!-- 例えば現在10ページ目なら、range=2 ページ表示範囲は 8-12 となる -->
+        <?php if ($i >= $current_page - $range && $i <= $current_page + $range) : ?>
+            <?php 
+            $tag = "";
+            $href = "";
+            $additional_class = "";
+            $page_number = "";
+    
+            if ($i == $current_page) {
+                $tag = "span";
+                $additional_class = "now_page_number";
+            } else {
+                $tag = "a";
+                $additional_class = "page-nation page_number";
+                $href = "href=\"?page=".$i.$queryParam."\"";  
+            }
+            $page_number = $i;
+            ?>
+            <!-- HTML出力 -->
+            <<?php echo($tag); ?> class="<?php echo($additional_class) ?>" <?php echo($href); ?>><?php echo($page_number) ?></<?php echo($tag) ?>> 
         <?php endif; ?>
-    <?php endif; ?>
- <?php endfor; ?>
+    <?php endfor; ?>
 
- <!-- 進むボタン作成 -->
- <?php if ($current_page < $total_page_count) : ?>
-    <a  class="page-nation" href="index.php?page=<?php echo($current_page + 1); echo($queryParam); ?>" class="page_feed">&raquo;</a>
-<?php else : ?>
-    <span class="first_last_page">&raquo;</span>
-<?php endif; ?>
+     <!-- 進むボタン作成 -->
+    <?php 
+    $tag = "";
+    $href = "";
+    $additional_class = "";
+    if ($current_page < $total_page_count) {
+        $tag = "a";
+        $href = "href=\"?page=".($current_page + 1).$queryParam."\"";
+        $additional_class = "page_feed page-nation";
+    } else {
+        // 最終ページだからリンクにしない
+        $tag = "span";
+        $additional_class = "first_last_page";
+    }
+    ?>
+    <!-- HTML出力 -->
+    <<?php echo($tag) ?> class="<?php echo($additional_class) ?>" <?php echo($href) ?>>&raquo;<<?php echo($tag) ?>>
+
 </div>
 
+<!-- PHP Functions -->
 <?php
 function searchDatas($input_property_number, 
                     $input_asset_name, 

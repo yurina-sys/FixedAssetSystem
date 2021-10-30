@@ -57,6 +57,14 @@ color: rgba(120,224,232);
     background-color: rgb(251,255,212)
 }
 
+/* input="number"のスピンボタン非表示　Chrome,Safari,FireFox,IE */
+.no-spin::-webkit-inner-spin-button,
+.no-spin::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    -moz-appearance:textfield;
+}
+
 /* boootstrapオーバーライド */
 .form-control {
     border: 2px solid rgb(255,219,226);
@@ -70,7 +78,8 @@ color: rgba(120,224,232);
     color: rgb(255,153,176);
 }
 
-input:-webkit-autofill {
-    /* これをしないとなぜか入力補完を選択したときにテキストフィールドの背景色が水色になってしまう*/
-    transition: background-color 500000s;
-}
+/* いったんコメントアウト　残課題：オートコンプリート */
+/* input:-webkit-autofill { 
+    これをしないとなぜか入力補完を選択したときにテキストフィールドの背景色が水色になってしまう
+    transition: background-color 500000s; 
+    } */
