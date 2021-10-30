@@ -148,16 +148,15 @@ $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT)
     <p>全<?php echo($total_page_count); ?>ページ　<?php echo(count($result_array)); ?>件中 <?php echo(getDisplayItemCount($current_page,$min_display_index, $result_array)); ?>件表示</p>
 </div>
 
-<?php 
-$additional_class = "";
-$additional_data = ""; ?>
-
 <div class="m-3">
     <table class="table tr-hover table-sm custom-table">
         <!-- データ名の列 -->
         <tr>
             <?php for ($i = 0; $i < count($header_array); $i++) : ?>
                 <?php 
+                $additional_class = "";
+                $additional_data = ""; 
+
                 if ($i == 1 || $i == 3 || $i == 5 || $i == 7 || $i == 9 || $i ==11) {
                     $additional_class = "text-center background-pink";
                 } else {
@@ -174,6 +173,9 @@ $additional_data = ""; ?>
             <tr>
                 <?php for ($i = 0; $i < count($array); $i++) : ?>  
                     <?php 
+                    $additional_class = "";
+                    $additional_data = ""; 
+                    
                     if ($i == 1 || $i == 5 || $i == 6 || $i == 7 || $i == 8 || $i == 11) {
                         $additional_class = "text-center";
                         $additional_data = $array[$i];
