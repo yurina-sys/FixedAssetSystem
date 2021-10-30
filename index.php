@@ -46,7 +46,7 @@ $input_book_value_of_period_max = extraTrim($input_book_value_of_period_max);
 ?>
 
 <div class="text-center p-3">
-    <h2>墨田区固定資産台帳</h2>
+    <h2 class="title-text">墨田区固定資産台帳</h2>
 </div>
 
  <div class="container p-5" th:fragment="search">
@@ -80,12 +80,11 @@ $input_book_value_of_period_max = extraTrim($input_book_value_of_period_max);
 			    <input type="radio" <?php echo(getMatchTypeTag(false, true)); ?> class="form-check-input　col-md-1" name="match_type" value="part_match">
 			</div>
 			<div class="text-center">
-                <input type="submit" value="検索">
+                <input class="serch-button" type="submit" value="serch">
 			</div>
 		</form>
 		<hr>
     </div>
-
 <?php
 
 // 文字列検索
@@ -149,23 +148,27 @@ $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT)
 </div>
 
 <div class="m-3">
-    <table class="table table-sm table-hover custom-table">
+    <table class="table tr-hover table-sm custom-table">
         <tr>
             <?php for ($i = 0; $i < count($header_array); $i++) : ?>
-                <?php if ($i == 1 || $i == 9 || $i == 12 || $i == 13) : ?> 
-                    <th class="text-center"><?php echo($header_array[$i]); ?></th>
+                <?php if ($i == 1 || $i == 3 || $i == 5 || $i == 7 || $i == 9 || $i ==11) : ?>
+                    <th class="text-center background-pink"><?php echo($header_array[$i]); ?></th>
                 <?php else : ;?>
-                    <th class="text-left"><?php echo($header_array[$i]); ?></th>
+                    <th class="text-center background-blue"><?php echo($header_array[$i]); ?></th>
                 <?php endif; ?>
             <?php endfor; ?>
         </tr>
         <?php foreach($display_array as $array) : ?>
             <tr>
                 <?php for ($i = 0; $i < count($array); $i++) : ?>
-                    <?php if ($i == 1 || $i == 5) : ?>
+                    <?php if ($i == 1 || $i == 5 || $i == 6 || $i == 7 || $i == 11) : ?>
                         <td class="text-center"><?php echo($array[$i]); ?></td>
                     <?php elseif ($i == 9) : ?> 
-                        <td class="text-right"><?php echo($array[$i]); ?></td>
+                    <!-- 数量+平方メートル -->
+                        <td class="text-right"><?php echo($array[$i].$array[$i + 1]); ?></td>
+                    <?php elseif ($i == 10) : ?>
+                    <!-- 単位はスルー -->
+                        <?php continue; ?>
                     <?php elseif ($i == 12 || $i == 13) : ?> 
                         <!-- 金額をカンマ3桁区切りで整形してから表示 -->
                         <td class="text-right"><?php echo(formatAmountMoney($array[$i])); ?></td>
@@ -181,7 +184,7 @@ $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT)
 <div class="text-center mb-5">
 <!-- 戻るボタン作成 -->
 <?php if ($current_page >= 2): ?>
-    <a href="index.php?page=<?php echo($current_page - 1); echo($queryParam); ?>" class="page_feed">&laquo;</a>
+    <a class="page-nation" href="index.php?page=<?php echo($current_page - 1); echo($queryParam); ?>" class="page_feed">&laquo;</a>
 
     <?php else : ;?>
         <span class="first_last_page">&laquo;</span>
@@ -196,13 +199,14 @@ $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT)
             <span class="now_page_number"><?php echo $i; ?></span>
         <?php else: ?>
             <!-- ページリンク部分 -->
-            <a href="?page=<?php echo $i; echo $queryParam; ?>" class="page_number"><?php echo $i; ?></a>
+            <a  class="page-nation" href="?page=<?php echo $i; echo $queryParam; ?>" class="page_number"><?php echo $i; ?></a>
         <?php endif; ?>
     <?php endif; ?>
  <?php endfor; ?>
 
+ <!-- 進むボタン作成 -->
  <?php if ($current_page < $total_page_count) : ?>
-    <a href="index.php?page=<?php echo($current_page + 1); echo($queryParam); ?>" class="page_feed">&raquo;</a>
+    <a  class="page-nation" href="index.php?page=<?php echo($current_page + 1); echo($queryParam); ?>" class="page_feed">&raquo;</a>
 <?php else : ?>
     <span class="first_last_page">&raquo;</span>
 <?php endif; ?>
@@ -220,8 +224,6 @@ function searchDatas($input_property_number,
 
 $fileData = new SplFileObject('墨田区固定資産台帳_202103.tsv');
 $fileData -> setFlags(SplFileObject::READ_CSV);
-// これ必要？
-// $fileData -> setCsvControl("t");
 
 // $dataは1行分のデータが入った配列
 foreach($fileData as $data) {
@@ -238,6 +240,9 @@ foreach($fileData as $data) {
 
 // カラム定義名配列
 $header_array = $imploded_array[0];
+// 「単位」を削除
+unset($header_array[10]);
+$header_array = array_values($header_array);
 // データ本体の配列
 $data_array = getDataArray($imploded_array);
 

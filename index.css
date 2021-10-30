@@ -1,9 +1,76 @@
+body {
+    font-family: "ヒラギノ丸ゴ ProN","Arial", "Yu Mincho", sans-serif;
+    color: #4e423e;
+}
 
-.test {
-    /* color: blue; */
-    margin: auto 0;
+.page-nation {
+    color: rgb(255,102,153);
+}
+
+a:hover{
+text-decoration: none;
+color: rgba(120,224,232);
 }
 
 .custom-table {
     font-size: 0.8em;
+}
+
+.title-text {
+    font-weight: bold;
+}
+
+.background-pink {
+    background-color: rgba(255,153,176,.6);
+    color: white;
+    text-shadow: 1px 1px 1px rgb(255,102,153);
+}
+
+.background-blue {
+    background-color: rgba(120,224,232,.6);
+    color: white;
+    text-shadow: 1px 1px 1px rgba(120,224,232);
+}
+
+.serch-button {
+    color: rgb(255,102,153);
+    background-color: rgba(255,153,176,.7);
+    text-shadow: -1px -1px 1px rgba(255, 219, 226);
+    border-bottom: 5px solid rgb(255,102,153);
+
+    border-radius: 0.5rem;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+
+    width: 5em;
+}
+
+.serch-button:hover {
+    margin-top: 3px;
+    border-bottom: 2px solid rgb(255,153,176);
+
+    transition: all 0.3s;
+}
+
+.tr-hover tr:hover td {
+    background-color: rgb(251,255,212)
+}
+
+/* boootstrapオーバーライド */
+.form-control {
+    border: 2px solid rgb(255,219,226);
+    color: #4e423e;
+}
+
+.form-control:focus {
+    border-color: rgba(255, 219, 226);
+    -webkit-box-shadow: inset 0 5px 5px rgba(255, 219, 226,.3), 0 0 8px rgba(120,224,232, .6);
+    box-shadow: inset 0 5px 5px rgba(255, 219, 226,.3), 0 0 8px rgba(120,224,232, .6);
+    color: rgb(255,153,176);
+}
+
+input:-webkit-autofill {
+    /* これをしないとなぜか入力補完を選択したときにテキストフィールドの背景色が水色になってしまう*/
+    transition: background-color 500000s;
 }
