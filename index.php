@@ -205,66 +205,33 @@ $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT)
 
 <div class="text-center mb-5">
     <!-- 戻るボタン作成 --> 
-    <?php 
-    $tag = "";
-    $href = "";
-    $additional_class = "";
-    if ($current_page >= 2) {
-        $tag = "a";
-        $href = "href=\"?page=".($current_page - 1).$queryParam."\"";
-        $additional_class = "page_feed page-nation";
-    } else {
-        // 1ページ目だからリンクにしない
-        $tag = "span";
-        $additional_class = "first_last_page";
-    }
-    ?>
-    <!-- HTML出力 -->
-    <<?php echo($tag); ?> <?php echo($href) ?> class="<?php echo($additional_class); ?>">&laquo;</<?php echo($tag); ?>>
+    <?php if ($current_page >= 2): ?>
+        <a class="page-nation" href="index.php?page=<?php echo($current_page - 1); echo($queryParam); ?>" class="page_feed">&laquo;</a>
+
+    <?php else : ;?>
+        <span class="first_last_page">&laquo;</span>
+    <?php endif; ?>
 
     <!-- ページ番号作成 -->
     <?php for ($i = 1; $i <= $total_page_count; $i++) : ?>
         <!-- 例えば現在10ページ目なら、range=2 ページ表示範囲は 8-12 となる -->
         <?php if ($i >= $current_page - $range && $i <= $current_page + $range) : ?>
-            <?php 
-            $tag = "";
-            $href = "";
-            $additional_class = "";
-            $page_number = "";
-    
-            if ($i == $current_page) {
-                $tag = "span";
-                $additional_class = "now_page_number";
-            } else {
-                $tag = "a";
-                $additional_class = "page-nation page_number";
-                $href = "href=\"?page=".$i.$queryParam."\"";  
-            }
-            $page_number = $i;
-            ?>
-            <!-- HTML出力 -->
-            <<?php echo($tag); ?> class="<?php echo($additional_class) ?>" <?php echo($href); ?>><?php echo($page_number) ?></<?php echo($tag) ?>> 
+            <?php if ($i == $current_page) : ?>
+                <!-- 表示中のページはリンクにしない -->
+                <span class="now_page_number"><?php echo $i; ?></span>
+            <?php else: ?>
+                <!-- ページリンク部分 -->
+                <a  class="page-nation" href="?page=<?php echo $i; echo $queryParam; ?>" class="page_number"><?php echo $i; ?></a>
+            <?php endif; ?>
         <?php endif; ?>
     <?php endfor; ?>
 
      <!-- 進むボタン作成 -->
-    <?php 
-    $tag = "";
-    $href = "";
-    $additional_class = "";
-    if ($current_page < $total_page_count) {
-        $tag = "a";
-        $href = "href=\"?page=".($current_page + 1).$queryParam."\"";
-        $additional_class = "page_feed page-nation";
-    } else {
-        // 最終ページだからリンクにしない
-        $tag = "span";
-        $additional_class = "first_last_page";
-    }
-    ?>
-    <!-- HTML出力 -->
-    <<?php echo($tag) ?> class="<?php echo($additional_class) ?>" <?php echo($href) ?>>&raquo;<<?php echo($tag) ?>>
-
+    <?php if ($current_page < $total_page_count) : ?>
+        <a  class="page-nation" href="index.php?page=<?php echo($current_page + 1); echo($queryParam); ?>" class="page_feed">&raquo;</a>
+    <?php else : ?>
+        <span class="first_last_page">&raquo;</span>
+    <?php endif; ?>
 </div>
 
 <!-- PHP Functions -->
