@@ -122,7 +122,6 @@ $min_display_index = getDisplayItemIndex($current_page);
 // 現在ページで表示するアイテム
 $display_array = array_slice($result_array, $min_display_index, PAGE_ITEM_COUNT);
 
-
     $queryParam = '&property_number='.rawurlencode($input_property_number).
         '&asset_name='.rawurlencode($input_asset_name).
         '&location='.rawurlencode($input_location).
@@ -369,14 +368,14 @@ function completeMatch ($data_array,
 
 // 入力値からデータを絞り込み（部分一致）
 function partMatch ($data_array,
-                        $input_property_number, 
-                        $input_asset_name, 
-                        $input_location, 
-                        $input_auxiliary_submit_name, 
-                        $input_acquisition_price_min,
-                        $input_acquisition_price_max,
-                        $input_book_value_of_period_min,
-                        $input_book_value_of_period_max) {
+                    $input_property_number, 
+                    $input_asset_name, 
+                    $input_location, 
+                    $input_auxiliary_submit_name, 
+                    $input_acquisition_price_min,
+                    $input_acquisition_price_max,
+                    $input_book_value_of_period_min,
+                    $input_book_value_of_period_max) {
                         
     $result_array = Array();
   
@@ -506,5 +505,4 @@ function extraTrim($text) {
 ?>
 
 </body>
-
 </html>
